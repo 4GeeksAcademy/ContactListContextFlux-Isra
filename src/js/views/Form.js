@@ -1,28 +1,43 @@
-import React, { useContext, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { act, useContext, useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Context } from "../store/appContext";
 
 export const Form = () => {
-  const { actions } = useContext(Context);
+  const { actions, store } = useContext(Context);
+  const params = useParams();
+
+  const defaultData = store.contacts.find((contact) => contact.id == params.id);
+  console.log(defaultData);
+
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
+    name: defaultData?.name || "",
+    email: defaultData?.email || "",
+    phone: defaultData?.phone || "",
+    address: defaultData?.address || "",
   });
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData({ ...formData, [id]: value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    actions.addContact(formData);
+
+    if (params.id) {
+      actions.updateContact(params.id, formData);
+    } else {
+      actions.addContact(formData);
+    }
     navigate("/");
   };
 
+  const handleReturn = () => {
+    actions.isEditing();
+    navigate("/");
+  };
   return (
     <div className="container p-4">
       <form onSubmit={handleSubmit}>
@@ -31,7 +46,7 @@ export const Form = () => {
           <input
             type="text"
             className="form-control"
-            id="name"
+            name="name"
             value={formData.name}
             onChange={handleChange}
           />
@@ -40,8 +55,8 @@ export const Form = () => {
           <label className="form-label">Email</label>
           <input
             type="email"
+            name="email"
             className="form-control"
-            id="email"
             value={formData.email}
             onChange={handleChange}
           />
@@ -50,8 +65,8 @@ export const Form = () => {
           <label className="form-label">Phone</label>
           <input
             type="text"
+            name="phone"
             className="form-control"
-            id="phone"
             value={formData.phone}
             onChange={handleChange}
           />
@@ -60,8 +75,8 @@ export const Form = () => {
           <label className="form-label">Address</label>
           <input
             type="text"
+            name="address"
             className="form-control"
-            id="address"
             value={formData.address}
             onChange={handleChange}
           />
@@ -70,9 +85,8 @@ export const Form = () => {
           Save
         </button>
       </form>
-      <Link to="/">
-        <span>Or get back to contacts</span>
-      </Link>
+
+      <span onClick={handleReturn}>Or get back to contacts</span>
     </div>
   );
 };

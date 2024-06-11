@@ -2,8 +2,41 @@ const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
       contacts: [],
+      isEditing: false,
     },
     actions: {
+      isEditing: async (contact) => {
+        await setStore({ isEditing: true });
+        await setStore({ editContact: contact });
+      },
+
+      createUser: async () => {
+        try {
+          const resp = await fetch(
+            "https://playground.4geeks.com/contact/agendas/agendaIsra",
+            {
+              method: "GET",
+              headers: {
+                accept: "application/json",
+              },
+            }
+          );
+          if (resp.status == 404) {
+            const resp = await fetch(
+              "https://playground.4geeks.com/contact/agendas/agendaIsra",
+              {
+                method: "POST",
+                headers: {
+                  accept: "application/json",
+                },
+              }
+            );
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      },
+
       getContact: async () => {
         try {
           const resp = await fetch(
@@ -22,7 +55,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           const data = await resp.json();
           if (data.contacts && Array.isArray(data.contacts)) {
             setStore({ contacts: data.contacts });
-            console.log("Contacts updated in store:", getStore().contacts);
           } else {
             console.error("LaAPI no contiene contactos:", data);
           }
@@ -79,14 +111,18 @@ const getState = ({ getStore, getActions, setStore }) => {
               return contact;
             });
             setStore({ contacts: updatedContacts });
+            getActions().getContact();
+            setStore({ isEditing: false });
           } else {
             console.error("Error al intentar actualizar un contacto");
+            setStore({ isEditing: false });
           }
         } catch (error) {
           console.error(
             `Error al actualizar el contacto con ID ${contactId}:`,
             error
           );
+          setStore({ isEditing: false });
         }
       },
 

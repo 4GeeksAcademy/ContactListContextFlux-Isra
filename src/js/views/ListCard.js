@@ -6,15 +6,16 @@ export const ListCard = () => {
   const { store, actions } = useContext(Context);
 
   useEffect(() => {
+    actions.createUser();
     actions.getContact();
   }, []);
 
   return (
     <div className="d-flex justify-content-center flex-column align-items-center">
       {Array.isArray(store.contacts) && store.contacts.length > 0 ? (
-        store.contacts.map((contact) => (
+        store.contacts.map((contact, i) => (
           <Card
-            key={contact.id}
+            key={i}
             contact={contact}
             updateContact={actions.updateContact}
             deleteContact={actions.deleteContact}
