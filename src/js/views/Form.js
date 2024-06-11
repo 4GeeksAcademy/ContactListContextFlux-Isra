@@ -85,8 +85,11 @@ export const Form = () => {
           Save
         </button>
       </form>
-
-      <span onClick={handleReturn}>Or get back to contacts</span>
+      <div className="mt-3">
+        <button className="btn btn-secondary" onClick={handleReturn}>
+          Or get back to contacts
+        </button>
+      </div>
     </div>
   );
 };
